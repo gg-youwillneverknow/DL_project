@@ -322,7 +322,8 @@ def generate_synthetic_samples(n):
     #gen_predict_2 = {k,v for k in gen_predict.keys() for v }
     for k in gen_predict.keys():
         #gen_predict_2[k] = np.array(np.mean(gen_predict[k]))
-        s = [np.random.choice(pd.Series(gen_predict[k]).index, size=n//2)]
+        print(gen_predict[k])
+        s = [np.random.choice(list(gen_predict[k]).index, size=n//2)]
         gen_predict_2[k] = {name:np.vstack([gen_predict[name][sample].values.reshape(-1,1) for y,sample in enumerate(s)]) for name in processed_df}
 
     #samples = [np.random.choice(train_target_df[train_target_df[target] == _y].index, size=n//2) for _y in range(2)]
