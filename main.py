@@ -312,7 +312,7 @@ def generate_latent_samples(n):
     return x, y
 
 #function for generating synthetic samples for discriminator training
-def generate_synthetic_samples(n):
+""" def generate_synthetic_samples(n):
     
     latent_x, _ = generate_latent_samples(n)
     #generate data with balanced targets
@@ -333,7 +333,30 @@ def generate_synthetic_samples(n):
     #outputs indicating negative discirmination
     y = np.array([[1,0,0] for _ in range(n)])
 
+    return x, y """
+
+def generate_synthetic_samples(n):
+    latent_x, _ = generate_latent_samples(n)
+    gen_predict = generator.predict(latent_x)
+    print(type(gen_predict))
+    samples = [np.random.choice(train_target_df[train_target_df[target] == _y].index, size=n//2) for _y in range(2)]
+    x = {name:np.vstack([gen_predict[name][sample] for y,sample in enumerate(samples)]) for name in processed_df}
+
+    for name,n_token in n_tokens.items():
+        x[name] = to_categorical(x[name], n_token)
+    y = np.hstack([np.array([[0] for _ in range(n)]),
+                   to_categorical(np.hstack([train_target_df[target][sample].values for sample in samples]),2)])
     return x, y
+
+""" def generate_real_samples(n):
+    samples = [np.random.choice(train_target_df[train_target_df[target] == _y].index, size=n//2) for _y in range(2)]
+    x = {name:np.vstack([train_df[name][sample].values.reshape(-1,1) for y,sample in enumerate(samples)]) for name in processed_df}
+    for name,n_token in n_tokens.items():
+        x[name] = to_categorical(x[name], n_token)
+    y = np.hstack([np.array([[1] for _ in range(n)]),
+                   to_categorical(np.hstack([train_target_df[target][sample].values for sample in samples]),2)])
+    return x, y """
+
     
     
 #function for generating real samples for discriminator training
@@ -342,9 +365,6 @@ def generate_real_samples(n):
     #sample real data with balanced targets
     samples = [np.random.choice(train_target_df[train_target_df[target] == _y].index, size=n//2) for _y in range(2)]
 
-    """ for psample in list(train_df.columns()):
-        avg_results = np.mean(train_df[column][psample])  """
-    print(samples)
     x = {name:np.vstack([train_df[name][sample].values.reshape(-1,1) for y,sample in enumerate(samples)]) for name in processed_df}
     for name,n_token in n_tokens.items():
         x[name] = to_categorical(x[name], n_token)
