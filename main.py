@@ -338,15 +338,14 @@ def generate_latent_samples(n):
 def generate_synthetic_samples(n):
     latent_x, _ = generate_latent_samples(n)
     gen_predict = generator.predict(latent_x)
-    print(type(gen_predict))
     samples = [np.random.choice(train_target_df[train_target_df[target] == _y].index, size=n//2) for _y in range(2)]
-    x = {name:np.vstack([gen_predict[name][sample] for y,sample in enumerate(samples)]) for name in processed_df}
-
+    x = {name: np.vstack([gen_predict[name][np.random.randint(gen_predict[name].shape[0])] for _ in range(n)]) for name in processed_df}
     for name,n_token in n_tokens.items():
         x[name] = to_categorical(x[name], n_token)
     y = np.hstack([np.array([[0] for _ in range(n)]),
                    to_categorical(np.hstack([train_target_df[target][sample].values for sample in samples]),2)])
     return x, y
+
 
 """ def generate_real_samples(n):
     samples = [np.random.choice(train_target_df[train_target_df[target] == _y].index, size=n//2) for _y in range(2)]
